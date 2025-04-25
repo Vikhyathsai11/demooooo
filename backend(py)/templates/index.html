@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Single Question Generator</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+
+    label, input, select, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .question-box {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #fcfcfc;
+    }
+
+    .option {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Generate a Quiz Question</h2>
+    <form id="quizForm">
+      <label for="topic">Enter Topic:</label>
+      <input type="text" id="topic" name="topic" placeholder="e.g., Artificial Intelligence" required>
+
+      <label for="difficulty">Select Difficulty:</label>
+      <select id="difficulty" name="difficulty">
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+
+      <button type="submit">Generate Question</button>
+    </form>
+
+    <div id="result" class="question-box" style="display:none;"></div>
+  </div>
+
+  <script>
+    document.getElementById('quizForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const topic = document.getElementById('topic').value;
+      const difficulty = document.getElementById('difficulty').value;
+
+      const response = await fetch('/generate-question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: topic, difficulty: difficulty })
+      });
+
+      const data = await response.json();
+      const resultDiv = document.getElementById('result');
+
+      if (data.error) {
+        resultDiv.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+      } else {
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `
+          <h3>(${data.difficulty.toUpperCase()}) ${data.question}</h3>
+          <div class="option">A. ${data.options.A}</div>
+          <div class="option">B. ${data.options.B}</div>
+          <div class="option">C. ${data.options.C}</div>
+          <div class="option">D. ${data.options.D}</div>
+          <p><strong>Answer:</strong> ${data.correct_answer}</p>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
